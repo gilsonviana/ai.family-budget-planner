@@ -9,3 +9,12 @@ export {
   type MoneyOptions,
   type RoundingMode,
 } from "./money.js";
+export {
+  DateRange,
+  InvalidCalendarValueError,
+  InvalidDateRangeError,
+  LocalDate,
+  YearMonth,
+  isLeapYear,
+  type MonthOverflow,
+} from "./calendar.js";
