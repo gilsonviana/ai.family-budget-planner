@@ -1,0 +1,29 @@
+{
+  "name": "@family-finance/infrastructure",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rimraf dist",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@family-finance/application": "workspace:*",
+    "@family-finance/config": "workspace:*",
+    "@family-finance/domain": "workspace:*",
+    "@family-finance/shared": "workspace:*"
+  }
+}
