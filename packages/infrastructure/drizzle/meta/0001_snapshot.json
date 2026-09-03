@@ -1,0 +1,595 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "a122d0ff-8a25-4e2b-a5fb-13f3897011a0",
+  "prevId": "f5f25308-04f5-46a6-a279-33ab38f5119f",
+  "tables": {
+    "bill_plans": {
+      "name": "bill_plans",
+      "columns": {
+        "expense_plan_id": {
+          "name": "expense_plan_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "reminders_enabled": {
+          "name": "reminders_enabled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "reminder_lead_days": {
+          "name": "reminder_lead_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bill_plans_expense_plan_id_expense_plans_id_fk": {
+          "name": "bill_plans_expense_plan_id_expense_plans_id_fk",
+          "tableFrom": "bill_plans",
+          "tableTo": "expense_plans",
+          "columnsFrom": ["expense_plan_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "bill_plans_reminder_lead_days_range": {
+          "name": "bill_plans_reminder_lead_days_range",
+          "value": "\"bill_plans\".\"reminder_lead_days\" BETWEEN 0 AND 365"
+        }
+      }
+    },
+    "bill_reminder_recipients": {
+      "name": "bill_reminder_recipients",
+      "columns": {
+        "bill_plan_id": {
+          "name": "bill_plan_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bill_reminder_recipients_bill_plan_id_bill_plans_expense_plan_id_fk": {
+          "name": "bill_reminder_recipients_bill_plan_id_bill_plans_expense_plan_id_fk",
+          "tableFrom": "bill_reminder_recipients",
+          "tableTo": "bill_plans",
+          "columnsFrom": ["bill_plan_id"],
+          "columnsTo": ["expense_plan_id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "bill_reminder_recipients_bill_plan_id_email_pk": {
+          "columns": ["bill_plan_id", "email"],
+          "name": "bill_reminder_recipients_bill_plan_id_email_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "expense_categories": {
+      "name": "expense_categories",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "family_id": {
+          "name": "family_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        }
+      },
+      "indexes": {
+        "expense_categories_family_id_id_unique": {
+          "name": "expense_categories_family_id_id_unique",
+          "columns": ["family_id", "id"],
+          "isUnique": true
+        },
+        "expense_categories_family_id_name_unique": {
+          "name": "expense_categories_family_id_name_unique",
+          "columns": ["family_id", "name"],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "expense_categories_family_id_households_id_fk": {
+          "name": "expense_categories_family_id_households_id_fk",
+          "tableFrom": "expense_categories",
+          "tableTo": "households",
+          "columnsFrom": ["family_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "expense_plans": {
+      "name": "expense_plans",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "family_id": {
+          "name": "family_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "category_id": {
+          "name": "category_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "amount_minor_units": {
+          "name": "amount_minor_units",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "amount_currency": {
+          "name": "amount_currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "amount_fraction_digits": {
+          "name": "amount_fraction_digits",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recurrence_frequency": {
+          "name": "recurrence_frequency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recurrence_start_date": {
+          "name": "recurrence_start_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recurrence_end_date": {
+          "name": "recurrence_end_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "recurrence_month_overflow": {
+          "name": "recurrence_month_overflow",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'constrain'"
+        },
+        "active": {
+          "name": "active",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "expense_plans_family_id_households_id_fk": {
+          "name": "expense_plans_family_id_households_id_fk",
+          "tableFrom": "expense_plans",
+          "tableTo": "households",
+          "columnsFrom": ["family_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "expense_plans_family_category_fk": {
+          "name": "expense_plans_family_category_fk",
+          "tableFrom": "expense_plans",
+          "tableTo": "expense_categories",
+          "columnsFrom": ["family_id", "category_id"],
+          "columnsTo": ["family_id", "id"],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "expense_plans_amount_minor_units_positive": {
+          "name": "expense_plans_amount_minor_units_positive",
+          "value": "\"expense_plans\".\"amount_minor_units\" GLOB '[1-9]*'"
+        },
+        "expense_plans_fraction_digits_range": {
+          "name": "expense_plans_fraction_digits_range",
+          "value": "\"expense_plans\".\"amount_fraction_digits\" BETWEEN 0 AND 18"
+        }
+      }
+    },
+    "family_members": {
+      "name": "family_members",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "family_id": {
+          "name": "family_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "family_members_family_id_id_unique": {
+          "name": "family_members_family_id_id_unique",
+          "columns": ["family_id", "id"],
+          "isUnique": true
+        },
+        "family_members_family_id_name_unique": {
+          "name": "family_members_family_id_name_unique",
+          "columns": ["family_id", "name"],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "family_members_family_id_households_id_fk": {
+          "name": "family_members_family_id_households_id_fk",
+          "tableFrom": "family_members",
+          "tableTo": "households",
+          "columnsFrom": ["family_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "households": {
+      "name": "households",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "currency": {
+          "name": "currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locale": {
+          "name": "locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "time_zone": {
+          "name": "time_zone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "week_starts_on": {
+          "name": "week_starts_on",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "households_week_starts_on_range": {
+          "name": "households_week_starts_on_range",
+          "value": "\"households\".\"week_starts_on\" BETWEEN 0 AND 6"
+        }
+      }
+    },
+    "income_plans": {
+      "name": "income_plans",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "family_id": {
+          "name": "family_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "member_id": {
+          "name": "member_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "amount_minor_units": {
+          "name": "amount_minor_units",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "amount_currency": {
+          "name": "amount_currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "amount_fraction_digits": {
+          "name": "amount_fraction_digits",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recurrence_frequency": {
+          "name": "recurrence_frequency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recurrence_start_date": {
+          "name": "recurrence_start_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recurrence_end_date": {
+          "name": "recurrence_end_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "recurrence_month_overflow": {
+          "name": "recurrence_month_overflow",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'constrain'"
+        },
+        "active": {
+          "name": "active",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "income_plans_family_id_households_id_fk": {
+          "name": "income_plans_family_id_households_id_fk",
+          "tableFrom": "income_plans",
+          "tableTo": "households",
+          "columnsFrom": ["family_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "income_plans_family_member_fk": {
+          "name": "income_plans_family_member_fk",
+          "tableFrom": "income_plans",
+          "tableTo": "family_members",
+          "columnsFrom": ["family_id", "member_id"],
+          "columnsTo": ["family_id", "id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "income_plans_amount_minor_units_positive": {
+          "name": "income_plans_amount_minor_units_positive",
+          "value": "\"income_plans\".\"amount_minor_units\" GLOB '[1-9]*'"
+        },
+        "income_plans_fraction_digits_range": {
+          "name": "income_plans_fraction_digits_range",
+          "value": "\"income_plans\".\"amount_fraction_digits\" BETWEEN 0 AND 18"
+        }
+      }
+    },
+    "reminder_deliveries": {
+      "name": "reminder_deliveries",
+      "columns": {
+        "bill_plan_id": {
+          "name": "bill_plan_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "due_date": {
+          "name": "due_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recipient": {
+          "name": "recipient",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "attempted_at": {
+          "name": "attempted_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "provider_message_id": {
+          "name": "provider_message_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "failure_kind": {
+          "name": "failure_kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "reminder_deliveries_bill_plan_id_bill_plans_expense_plan_id_fk": {
+          "name": "reminder_deliveries_bill_plan_id_bill_plans_expense_plan_id_fk",
+          "tableFrom": "reminder_deliveries",
+          "tableTo": "bill_plans",
+          "columnsFrom": ["bill_plan_id"],
+          "columnsTo": ["expense_plan_id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "reminder_deliveries_bill_plan_id_due_date_recipient_pk": {
+          "columns": ["bill_plan_id", "due_date", "recipient"],
+          "name": "reminder_deliveries_bill_plan_id_due_date_recipient_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}

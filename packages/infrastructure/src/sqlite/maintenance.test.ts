@@ -57,8 +57,9 @@ describe("SQLite maintenance", () => {
 
     const report = checkDatabaseIntegrity(databasePath, migrations);
     expect(report.healthy).toBe(false);
-    expect(report.migrationErrors).toEqual([
+    expect(report.migrationErrors).toContain(
       "Applied migration 0 does not match committed migration",
-    ]);
+    );
+    expect(report.migrationErrors).toHaveLength(2);
   });
 });

@@ -1,4 +1,9 @@
 export {
+  ReminderProcessingService,
+  type ReminderProcessingItem,
+  type ReminderProcessingSummary,
+} from "./use-cases/process-reminders.js";
+export {
   EmailProviderError,
   type EmailDeliveryReceipt,
   type EmailProvider,

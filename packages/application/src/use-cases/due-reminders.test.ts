@@ -29,7 +29,12 @@ describe("DueReminderSelectionService", () => {
     );
     const result = await new DueReminderSelectionService(
       { listForReminders } as never,
-      { wasSuccessfullySent },
+      {
+        claim: vi.fn(),
+        recordFailure: vi.fn(),
+        recordSuccess: vi.fn(),
+        wasSuccessfullySent,
+      },
     ).select("f", processingDate);
     expect(result.map((item) => item.recipient)).toEqual(["due@example.com"]);
     expect(result[0]?.dueDate.toString()).toBe("2026-04-10");

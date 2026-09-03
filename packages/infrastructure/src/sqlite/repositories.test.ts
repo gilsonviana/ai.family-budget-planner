@@ -25,6 +25,7 @@ import {
   SQLiteFamilyProfileRepository,
   SQLiteIncomePlanRepository,
 } from "./repositories.js";
+import { SQLiteReminderDeliveryRepository } from "./reminder-delivery-repository.js";
 
 const directories: string[] = [];
 let initialized: InitializedDatabase;
@@ -183,5 +184,27 @@ describe("SQLite repository contracts", () => {
     expect(
       (await bills.getById("family", "power")).reminders.recipients,
     ).toEqual(["family@example.com"]);
+  });
+
+  it("persists reminder claims and successful idempotency keys", async () => {
+    await seedHousehold();
+    initialized.connection.exec(`
+      insert into expense_categories values ('utilities','family','Utilities',1);
+      insert into expense_plans values ('power','family','utilities','Power','1000','USD',2,'monthly','2026-01-10',null,'constrain',1);
+      insert into bill_plans values ('power',1,3);
+    `);
+    const deliveries = new SQLiteReminderDeliveryRepository(
+      initialized.database,
+    );
+    const key = {
+      billId: "power",
+      dueDate: LocalDate.fromISO("2026-08-10"),
+      recipient: "family@example.com",
+    };
+    expect(await deliveries.claim(key, "2026-08-07T10:00:00Z")).toBe(true);
+    expect(await deliveries.claim(key, "2026-08-07T10:00:01Z")).toBe(false);
+    await deliveries.recordSuccess(key, "2026-08-07T10:00:02Z", "provider-1");
+    expect(await deliveries.wasSuccessfullySent(key)).toBe(true);
+    expect(await deliveries.claim(key, "2026-08-07T10:00:03Z")).toBe(false);
   });
 });

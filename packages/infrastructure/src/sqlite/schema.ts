@@ -199,6 +199,29 @@ export const billReminderRecipients = sqliteTable(
   (table) => [primaryKey({ columns: [table.billPlanId, table.email] })],
 );
 
+export const reminderDeliveries = sqliteTable(
+  "reminder_deliveries",
+  {
+    billPlanId: text("bill_plan_id")
+      .notNull()
+      .references(() => billPlans.expensePlanId, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    dueDate: text("due_date").notNull(),
+    recipient: text("recipient").notNull(),
+    status: text("status", {
+      enum: ["claimed", "failed", "succeeded"],
+    }).notNull(),
+    attemptedAt: text("attempted_at").notNull(),
+    providerMessageId: text("provider_message_id"),
+    failureKind: text("failure_kind"),
+  },
+  (table) => [
+    primaryKey({ columns: [table.billPlanId, table.dueDate, table.recipient] }),
+  ],
+);
+
 export const financeSchema = {
   billPlans,
   billReminderRecipients,
@@ -207,4 +230,5 @@ export const financeSchema = {
   familyMembers,
   households,
   incomePlans,
+  reminderDeliveries,
 };
