@@ -21,6 +21,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@family-finance/shared": "workspace:*"
+    "@family-finance/shared": "workspace:*",
+    "zod": "^4.5.4"
   }
 }
