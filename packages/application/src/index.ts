@@ -1,4 +1,10 @@
 export {
+  BudgetInsightService,
+  type BudgetInsightResult,
+  type DeterministicBudgetFacts,
+  type GeneratedBudgetInsight,
+} from "./use-cases/budget-insights.js";
+export {
   LlmProviderError,
   type LlmPrompt,
   type LlmProvider,

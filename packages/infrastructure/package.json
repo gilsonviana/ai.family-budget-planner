@@ -27,7 +27,8 @@
     "@family-finance/domain": "workspace:*",
     "@family-finance/shared": "workspace:*",
     "better-sqlite3": "^13.0.3",
-    "drizzle-orm": "^0.45.2"
+    "drizzle-orm": "^0.45.2",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^9.6.0",
