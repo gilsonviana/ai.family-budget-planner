@@ -19,3 +19,8 @@ export {
   FamilyMemberService,
   type MemberReferenceChecker,
 } from "./use-cases/family-members.js";
+export {
+  type IncomePlanQuery,
+  type IncomePlanRepository,
+} from "./ports/income-repository.js";
+export { InMemoryIncomePlanRepository } from "./testing/in-memory-income-repository.js";
