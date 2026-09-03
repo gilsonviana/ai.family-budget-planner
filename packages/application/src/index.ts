@@ -33,3 +33,17 @@ export {
   type IncomeProjectionOccurrence,
   type IncomeProjectionResult,
 } from "./use-cases/income-projections.js";
+export {
+  type ExpenseCategoryRepository,
+  type ExpensePlanQuery,
+  type ExpensePlanRepository,
+} from "./ports/expense-repositories.js";
+export {
+  InMemoryExpenseCategoryRepository,
+  InMemoryExpensePlanRepository,
+} from "./testing/in-memory-expense-repositories.js";
+export {
+  ExpensePlanService,
+  InactiveExpenseCategoryError,
+  type UpdateExpensePlanCommand,
+} from "./use-cases/expense-plans.js";

@@ -1,6 +1,7 @@
 import type { FamilyMember, FamilyProfile } from "@family-finance/domain";
 
-export type RepositoryEntity = "family" | "familyMember" | "incomePlan";
+export type RepositoryEntity =
+  "expenseCategory" | "expensePlan" | "family" | "familyMember" | "incomePlan";
 
 export class RepositoryNotFoundError extends Error {
   public readonly entity: RepositoryEntity;
