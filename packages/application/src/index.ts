@@ -1,4 +1,11 @@
 export {
+  EmailProviderError,
+  type EmailDeliveryReceipt,
+  type EmailProvider,
+  type EmailProviderFailureKind,
+  type ReminderEmailMessage,
+} from "./ports/email-provider.js";
+export {
   type ReminderDeliveryRepository,
   type ReminderOccurrenceKey,
 } from "./ports/reminder-delivery-repository.js";
