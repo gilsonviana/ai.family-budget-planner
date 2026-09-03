@@ -24,3 +24,7 @@ export {
   type IncomePlanRepository,
 } from "./ports/income-repository.js";
 export { InMemoryIncomePlanRepository } from "./testing/in-memory-income-repository.js";
+export {
+  IncomePlanService,
+  type UpdateIncomePlanCommand,
+} from "./use-cases/income-plans.js";
