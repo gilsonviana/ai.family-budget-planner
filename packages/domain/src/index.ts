@@ -41,3 +41,8 @@ export {
   type HouseholdSettingsInput,
   type Weekday,
 } from "./family.js";
+export {
+  FamilyMember,
+  InvalidFamilyMemberError,
+  type CreateFamilyMemberInput,
+} from "./member.js";

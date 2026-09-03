@@ -14,3 +14,8 @@ export {
   InvalidFamilyProfileCommandError,
   type UpdateFamilyProfileInput,
 } from "./use-cases/family-profile.js";
+export {
+  CannotRemoveReferencedMemberError,
+  FamilyMemberService,
+  type MemberReferenceChecker,
+} from "./use-cases/family-members.js";

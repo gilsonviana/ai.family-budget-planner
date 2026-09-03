@@ -1,4 +1,5 @@
 import {
+  FamilyMember,
   FamilyProfile,
   type HouseholdSettingsInput,
 } from "@family-finance/domain";
@@ -7,7 +8,6 @@ import { describe, expect, it } from "vitest";
 import {
   RepositoryConflictError,
   RepositoryNotFoundError,
-  type FamilyMemberRecord,
   type FamilyMemberRepository,
   type FamilyProfileRepository,
 } from "../ports/family-repositories.js";
@@ -57,12 +57,8 @@ function familyProfileRepositoryContract(
   });
 }
 
-function member(
-  id: string,
-  familyId = "family",
-  name = id,
-): FamilyMemberRecord {
-  return { active: true, familyId, id, name };
+function member(id: string, familyId = "family", name = id): FamilyMember {
+  return FamilyMember.create({ familyId, id, name });
 }
 
 function familyMemberRepositoryContract(

@@ -1,4 +1,4 @@
-import type { FamilyProfile } from "@family-finance/domain";
+import type { FamilyMember, FamilyProfile } from "@family-finance/domain";
 
 export type RepositoryEntity = "family" | "familyMember";
 
@@ -37,18 +37,13 @@ export interface FamilyProfileRepository {
  * Persistence shape used by member workflows until the member aggregate is
  * introduced. Repository adapters must preserve family scoping.
  */
-export interface FamilyMemberRecord {
-  readonly active: boolean;
-  readonly familyId: string;
-  readonly id: string;
-  readonly name: string;
-}
+export type FamilyMemberRecord = FamilyMember;
 
 export interface FamilyMemberRepository {
-  create(member: FamilyMemberRecord): Promise<void>;
-  findById(familyId: string, id: string): Promise<FamilyMemberRecord | null>;
-  getById(familyId: string, id: string): Promise<FamilyMemberRecord>;
-  listByFamilyId(familyId: string): Promise<readonly FamilyMemberRecord[]>;
+  create(member: FamilyMember): Promise<void>;
+  findById(familyId: string, id: string): Promise<FamilyMember | null>;
+  getById(familyId: string, id: string): Promise<FamilyMember>;
+  listByFamilyId(familyId: string): Promise<readonly FamilyMember[]>;
   remove(familyId: string, id: string): Promise<void>;
-  update(member: FamilyMemberRecord): Promise<void>;
+  update(member: FamilyMember): Promise<void>;
 }

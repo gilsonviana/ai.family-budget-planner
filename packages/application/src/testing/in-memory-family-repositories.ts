@@ -1,9 +1,8 @@
-import type { FamilyProfile } from "@family-finance/domain";
+import type { FamilyMember, FamilyProfile } from "@family-finance/domain";
 
 import {
   RepositoryConflictError,
   RepositoryNotFoundError,
-  type FamilyMemberRecord,
   type FamilyMemberRepository,
   type FamilyProfileRepository,
 } from "../ports/family-repositories.js";
@@ -42,32 +41,25 @@ function memberKey(familyId: string, id: string): string {
   return `${familyId}\u0000${id}`;
 }
 
-function immutableMember(member: FamilyMemberRecord): FamilyMemberRecord {
-  return Object.freeze({ ...member });
-}
-
 export class InMemoryFamilyMemberRepository implements FamilyMemberRepository {
-  readonly #members = new Map<string, FamilyMemberRecord>();
+  readonly #members = new Map<string, FamilyMember>();
 
-  public async create(member: FamilyMemberRecord): Promise<void> {
+  public async create(member: FamilyMember): Promise<void> {
     const key = memberKey(member.familyId, member.id);
     if (this.#members.has(key)) {
       throw new RepositoryConflictError("familyMember", member.id);
     }
-    this.#members.set(key, immutableMember(member));
+    this.#members.set(key, member);
   }
 
   public async findById(
     familyId: string,
     id: string,
-  ): Promise<FamilyMemberRecord | null> {
+  ): Promise<FamilyMember | null> {
     return this.#members.get(memberKey(familyId, id)) ?? null;
   }
 
-  public async getById(
-    familyId: string,
-    id: string,
-  ): Promise<FamilyMemberRecord> {
+  public async getById(familyId: string, id: string): Promise<FamilyMember> {
     const member = await this.findById(familyId, id);
     if (member === null) {
       throw new RepositoryNotFoundError("familyMember", id);
@@ -77,7 +69,7 @@ export class InMemoryFamilyMemberRepository implements FamilyMemberRepository {
 
   public async listByFamilyId(
     familyId: string,
-  ): Promise<readonly FamilyMemberRecord[]> {
+  ): Promise<readonly FamilyMember[]> {
     return [...this.#members.values()]
       .filter((member) => member.familyId === familyId)
       .sort((left, right) => left.id.localeCompare(right.id));
@@ -89,11 +81,11 @@ export class InMemoryFamilyMemberRepository implements FamilyMemberRepository {
     }
   }
 
-  public async update(member: FamilyMemberRecord): Promise<void> {
+  public async update(member: FamilyMember): Promise<void> {
     const key = memberKey(member.familyId, member.id);
     if (!this.#members.has(key)) {
       throw new RepositoryNotFoundError("familyMember", member.id);
     }
-    this.#members.set(key, immutableMember(member));
+    this.#members.set(key, member);
   }
 }
