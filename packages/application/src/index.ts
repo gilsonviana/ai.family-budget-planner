@@ -1,4 +1,9 @@
 export {
+  PeriodComparisonService,
+  type MetricChange,
+  type PeriodComparison,
+} from "./use-cases/period-comparison.js";
+export {
   buildAnalyticalBreakdowns,
   type AnalyticalBreakdowns,
   type CategoryShare,
