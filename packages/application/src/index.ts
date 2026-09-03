@@ -1,4 +1,9 @@
 export {
+  AiPeriodSummaryService,
+  type AiPeriodSummaryResult,
+  type PeriodAnalyticsService,
+} from "./use-cases/ai-period-summary.js";
+export {
   FallbackLlmProvider,
   LlmFallbackError,
   type LlmFallbackAttempt,
