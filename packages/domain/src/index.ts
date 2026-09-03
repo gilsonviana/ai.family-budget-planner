@@ -24,3 +24,12 @@ export {
   type RecurrenceFrequency,
   type RecurrenceInput,
 } from "./recurrence.js";
+export {
+  DuplicateProjectionPlanError,
+  InvalidProjectionPlanError,
+  ProjectionEngine,
+  type FinancialPlan,
+  type ProjectedOccurrence,
+  type ProjectionInput,
+  type ProjectionResult,
+} from "./projection.js";
