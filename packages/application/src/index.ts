@@ -47,3 +47,7 @@ export {
   InactiveExpenseCategoryError,
   type UpdateExpensePlanCommand,
 } from "./use-cases/expense-plans.js";
+export {
+  ExpenseProjectionService,
+  type ExpenseProjectionResult,
+} from "./use-cases/expense-projections.js";
