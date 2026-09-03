@@ -33,3 +33,11 @@ export {
   type ProjectionInput,
   type ProjectionResult,
 } from "./projection.js";
+export {
+  FamilyProfile,
+  HouseholdSettings,
+  InvalidFamilyProfileError,
+  type CreateFamilyProfileInput,
+  type HouseholdSettingsInput,
+  type Weekday,
+} from "./family.js";
