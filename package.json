@@ -15,7 +15,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint . && pnpm architecture",
     "test": "vitest run",
-    "typecheck": "pnpm --recursive --if-present run typecheck"
+    "typecheck": "pnpm build && pnpm --recursive --if-present run typecheck"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

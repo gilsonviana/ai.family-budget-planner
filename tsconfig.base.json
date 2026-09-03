@@ -15,6 +15,7 @@
     "noUnusedParameters": true,
     "sourceMap": true,
     "strict": true,
+    "tsBuildInfoFile": "${configDir}/dist/.tsbuildinfo",
     "target": "ES2022"
   }
 }
