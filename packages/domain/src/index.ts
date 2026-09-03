@@ -18,3 +18,9 @@ export {
   isLeapYear,
   type MonthOverflow,
 } from "./calendar.js";
+export {
+  InvalidRecurrenceRuleError,
+  RecurrenceRule,
+  type RecurrenceFrequency,
+  type RecurrenceInput,
+} from "./recurrence.js";
