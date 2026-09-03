@@ -27,5 +27,8 @@
     "@family-finance/application": "workspace:*",
     "@family-finance/config": "workspace:*",
     "@family-finance/infrastructure": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1"
   }
 }

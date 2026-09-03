@@ -41,6 +41,10 @@ importers:
       '@family-finance/infrastructure':
         specifier: workspace:*
         version: link:../../packages/infrastructure
+    devDependencies:
+      '@types/node':
+        specifier: ^26.4.1
+        version: 26.4.1
 
   apps/mcp:
     dependencies:
