@@ -28,3 +28,8 @@ export {
   IncomePlanService,
   type UpdateIncomePlanCommand,
 } from "./use-cases/income-plans.js";
+export {
+  IncomeProjectionService,
+  type IncomeProjectionOccurrence,
+  type IncomeProjectionResult,
+} from "./use-cases/income-projections.js";
