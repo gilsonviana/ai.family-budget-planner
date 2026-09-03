@@ -12,6 +12,7 @@
     "build": "pnpm --recursive --if-present run build",
     "clean": "pnpm --recursive --if-present run clean",
     "finance": "node apps/cli/dist/index.js",
+    "finance:mcp": "node apps/mcp/dist/index.js",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . && pnpm architecture",

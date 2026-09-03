@@ -5,6 +5,9 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "finance-mcp": "./dist/index.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -23,6 +26,11 @@
   "dependencies": {
     "@family-finance/application": "workspace:*",
     "@family-finance/config": "workspace:*",
-    "@family-finance/infrastructure": "workspace:*"
+    "@family-finance/infrastructure": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1"
   }
 }
