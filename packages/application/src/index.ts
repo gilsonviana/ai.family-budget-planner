@@ -1,4 +1,10 @@
 export {
+  BudgetForecastService,
+  type BudgetForecast,
+  type ForecastBucket,
+  type ForecastGranularity,
+} from "./use-cases/budget-forecast.js";
+export {
   PeriodComparisonService,
   type MetricChange,
   type PeriodComparison,
