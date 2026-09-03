@@ -1,4 +1,12 @@
 export {
+  type ReminderDeliveryRepository,
+  type ReminderOccurrenceKey,
+} from "./ports/reminder-delivery-repository.js";
+export {
+  DueReminderSelectionService,
+  type DueReminder,
+} from "./use-cases/due-reminders.js";
+export {
   BudgetForecastService,
   type BudgetForecast,
   type ForecastBucket,
