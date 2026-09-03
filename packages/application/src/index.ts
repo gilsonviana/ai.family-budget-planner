@@ -1,4 +1,11 @@
 export {
+  FallbackLlmProvider,
+  LlmFallbackError,
+  type LlmFallbackAttempt,
+  type NamedLlmProvider,
+  type SafeLlmLogger,
+} from "./llm/fallback-llm-provider.js";
+export {
   BudgetInsightService,
   type BudgetInsightResult,
   type DeterministicBudgetFacts,
