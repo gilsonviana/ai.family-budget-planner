@@ -17,6 +17,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "db:generate": "drizzle-kit generate",
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
@@ -25,6 +26,12 @@
     "@family-finance/config": "workspace:*",
     "@family-finance/domain": "workspace:*",
     "@family-finance/shared": "workspace:*",
+    "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.2"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.4.1",
+    "drizzle-kit": "^0.31.10"
   }
 }
