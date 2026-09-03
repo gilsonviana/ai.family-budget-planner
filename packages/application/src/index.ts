@@ -1,4 +1,11 @@
 export {
+  buildAnalyticalBreakdowns,
+  type AnalyticalBreakdowns,
+  type CategoryShare,
+  type MemberContribution,
+  type PercentageShare,
+} from "./use-cases/analytical-breakdowns.js";
+export {
   BudgetSummaryService,
   type BudgetSummary,
 } from "./use-cases/budget-summary.js";
