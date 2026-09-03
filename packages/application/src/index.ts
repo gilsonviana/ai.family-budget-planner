@@ -9,3 +9,8 @@ export {
   InMemoryFamilyMemberRepository,
   InMemoryFamilyProfileRepository,
 } from "./testing/in-memory-family-repositories.js";
+export {
+  FamilyProfileService,
+  InvalidFamilyProfileCommandError,
+  type UpdateFamilyProfileInput,
+} from "./use-cases/family-profile.js";
