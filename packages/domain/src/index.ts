@@ -52,3 +52,11 @@ export {
   type CreateIncomePlanInput,
   type UpdateIncomePlanInput,
 } from "./income.js";
+export {
+  ExpenseCategory,
+  ExpensePlan,
+  InvalidExpenseError,
+  type CreateExpenseCategoryInput,
+  type CreateExpensePlanInput,
+  type UpdateExpensePlanInput,
+} from "./expense.js";
