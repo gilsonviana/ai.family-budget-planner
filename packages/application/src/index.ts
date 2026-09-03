@@ -1,4 +1,13 @@
 export {
+  LlmProviderError,
+  type LlmPrompt,
+  type LlmProvider,
+  type LlmProviderFailureKind,
+  type LlmResult,
+  type LlmUsage,
+  type StructuredResultValidator,
+} from "./ports/llm-provider.js";
+export {
   ReminderProcessingService,
   type ReminderProcessingItem,
   type ReminderProcessingSummary,
