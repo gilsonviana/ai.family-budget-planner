@@ -28,6 +28,7 @@
     "@family-finance/shared": "workspace:*",
     "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.2",
+    "openai": "^7.9.0",
     "zod": "^4.5.4"
   },
   "devDependencies": {

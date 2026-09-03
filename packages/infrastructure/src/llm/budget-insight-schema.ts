@@ -14,6 +14,7 @@ export const budgetInsightSchema = z
 
 export const budgetInsightValidator: StructuredResultValidator<GeneratedBudgetInsight> =
   {
+    jsonSchema: z.toJSONSchema(budgetInsightSchema) as Record<string, unknown>,
     name: "BudgetInsight",
     parse: (value) => budgetInsightSchema.parse(value),
   };

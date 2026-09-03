@@ -14,6 +14,7 @@ export interface LlmResult<T> {
   readonly value: T;
 }
 export interface StructuredResultValidator<T> {
+  readonly jsonSchema?: Readonly<Record<string, unknown>>;
   readonly name: string;
   parse(value: unknown): T;
 }
