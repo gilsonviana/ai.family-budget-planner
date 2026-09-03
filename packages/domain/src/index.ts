@@ -60,3 +60,11 @@ export {
   type CreateExpensePlanInput,
   type UpdateExpensePlanInput,
 } from "./expense.js";
+export {
+  BillPlan,
+  BillReminderPreferences,
+  InvalidBillError,
+  type BillOccurrence,
+  type BillStatus,
+  type ReminderPreferencesInput,
+} from "./bill.js";
