@@ -24,6 +24,7 @@
     "@family-finance/application": "workspace:*",
     "@family-finance/config": "workspace:*",
     "@family-finance/domain": "workspace:*",
-    "@family-finance/shared": "workspace:*"
+    "@family-finance/shared": "workspace:*",
+    "drizzle-orm": "^0.45.2"
   }
 }
