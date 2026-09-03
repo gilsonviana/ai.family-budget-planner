@@ -4,6 +4,7 @@ import { RepositoryNotFoundError } from "@family-finance/application";
 import {
   ConfigurationError,
   loadApplicationConfig,
+  type ApplicationConfig,
 } from "@family-finance/config";
 
 export const cliPackageName = "@family-finance/cli";
@@ -28,6 +29,14 @@ export interface CliIO {
   error(message: string): void;
   log(message: string): void;
 }
+export interface CliContext {
+  readonly config: ApplicationConfig;
+}
+export type CliDispatcher = (
+  command: string,
+  arguments_: readonly string[],
+  context: CliContext,
+) => Promise<void>;
 
 const help = `Family Finance Planner
 
@@ -56,15 +65,12 @@ function errorMessage(error: unknown): { code: number; message: string } {
 export async function runCli(
   arguments_: readonly string[],
   io: CliIO,
-  dispatch: (
-    command: string,
-    arguments_: readonly string[],
-  ) => Promise<void> = async (command) => {
+  dispatch: CliDispatcher = async (command) => {
     throw new CliValidationError(`Unknown command: ${command}`);
   },
 ): Promise<number> {
   try {
-    loadApplicationConfig(io.environment);
+    const config = loadApplicationConfig(io.environment);
     const [command, ...commandArguments] = arguments_;
     if (
       command === undefined ||
@@ -79,7 +85,7 @@ export async function runCli(
       io.log(cliVersion);
       return ExitCode.success;
     }
-    await dispatch(command, commandArguments);
+    await dispatch(command, commandArguments, { config });
     return ExitCode.success;
   } catch (error) {
     const mapped = errorMessage(error);
@@ -103,3 +109,5 @@ if (
 ) {
   void main();
 }
+
+export * from "./core-commands.js";
