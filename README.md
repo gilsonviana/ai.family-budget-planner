@@ -15,3 +15,6 @@ analytics, bill reminders, and provider-neutral AI insights.
 
 Install all workspace packages with `pnpm install` and build them with
 `pnpm build` once the TypeScript toolchain is configured.
+
+See [Scheduling bill reminders](docs/reminder-scheduling.md) for local and
+hosted scheduling guidance.
