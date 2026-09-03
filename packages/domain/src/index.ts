@@ -46,3 +46,9 @@ export {
   InvalidFamilyMemberError,
   type CreateFamilyMemberInput,
 } from "./member.js";
+export {
+  IncomePlan,
+  InvalidIncomePlanError,
+  type CreateIncomePlanInput,
+  type UpdateIncomePlanInput,
+} from "./income.js";
