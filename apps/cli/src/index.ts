@@ -6,6 +6,7 @@ import {
   loadApplicationConfig,
   type ApplicationConfig,
 } from "@family-finance/config";
+import { jsonError, type CliErrorCode } from "./json-output.js";
 
 export const cliPackageName = "@family-finance/cli";
 export const cliVersion = "0.0.0";
@@ -48,17 +49,33 @@ Options:
 
 Run "finance <command> --help" for command-specific help.`;
 
-function errorMessage(error: unknown): { code: number; message: string } {
+function errorMessage(error: unknown): {
+  code: number;
+  errorCode: CliErrorCode;
+  message: string;
+} {
   if (
     error instanceof ConfigurationError ||
     error instanceof CliValidationError
   ) {
-    return { code: ExitCode.validation, message: error.message };
+    return {
+      code: ExitCode.validation,
+      errorCode: "VALIDATION_ERROR",
+      message: error.message,
+    };
   }
   if (error instanceof RepositoryNotFoundError) {
-    return { code: ExitCode.notFound, message: error.message };
+    return {
+      code: ExitCode.notFound,
+      errorCode: "NOT_FOUND",
+      message: error.message,
+    };
   }
-  return { code: ExitCode.system, message: "Unexpected system error" };
+  return {
+    code: ExitCode.system,
+    errorCode: "SYSTEM_ERROR",
+    message: "Unexpected system error",
+  };
 }
 
 /** CLI adapter shell. Command handlers are injected so business rules remain in application services. */
@@ -89,7 +106,11 @@ export async function runCli(
     return ExitCode.success;
   } catch (error) {
     const mapped = errorMessage(error);
-    io.error(mapped.message);
+    io.error(
+      arguments_.includes("--json")
+        ? jsonError(mapped.errorCode, mapped.message)
+        : mapped.message,
+    );
     return mapped.code;
   }
 }
@@ -111,3 +132,4 @@ if (
 }
 
 export * from "./core-commands.js";
+export * from "./json-output.js";
