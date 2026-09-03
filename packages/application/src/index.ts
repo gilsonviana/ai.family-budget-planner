@@ -1,4 +1,8 @@
 export {
+  BudgetSummaryService,
+  type BudgetSummary,
+} from "./use-cases/budget-summary.js";
+export {
   type BillPlanRepository,
   type BillReminderQuery,
 } from "./ports/bill-repository.js";
