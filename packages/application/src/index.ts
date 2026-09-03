@@ -1,4 +1,8 @@
 export {
+  type BillPlanRepository,
+  type BillReminderQuery,
+} from "./ports/bill-repository.js";
+export {
   RepositoryConflictError,
   RepositoryNotFoundError,
   type FamilyMemberRecord,
