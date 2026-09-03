@@ -132,4 +132,5 @@ if (
 }
 
 export * from "./core-commands.js";
+export * from "./advanced-commands.js";
 export * from "./json-output.js";
