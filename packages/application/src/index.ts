@@ -1,3 +1,4 @@
+export { BillQueryService } from "./use-cases/bill-queries.js";
 export {
   AiPeriodSummaryService,
   type AiPeriodSummaryResult,

@@ -3,12 +3,29 @@
 import { fileURLToPath } from "node:url";
 
 import {
+  BillQueryService,
+  ExpensePlanService,
+  FamilyMemberService,
+  FamilyProfileService,
+  IncomePlanService,
+} from "@family-finance/application";
+import {
   loadApplicationConfig,
   type ApplicationConfig,
 } from "@family-finance/config";
-import { initializeDatabase } from "@family-finance/infrastructure";
+import {
+  initializeDatabase,
+  SQLiteBillPlanRepository,
+  SQLiteExpenseCategoryRepository,
+  SQLiteExpensePlanRepository,
+  SQLiteFamilyMemberRepository,
+  SQLiteFamilyProfileRepository,
+  SQLiteIncomePlanRepository,
+  type FinanceDatabase,
+} from "@family-finance/infrastructure";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { registerPlanningTools, type ToolRegistrar } from "./planning-tools.js";
 
 export const mcpPackageName = "@family-finance/mcp";
 export const mcpVersion = "0.0.0";
@@ -20,9 +37,16 @@ interface ServerBoundary {
 interface TransportBoundary {
   onerror?: (error: Error) => void;
 }
+interface DatabaseBoundary {
+  readonly database?: FinanceDatabase;
+  close(): void;
+}
 export interface McpRuntimeDependencies {
-  createDatabase(path: string): { close(): void };
-  createServer(config: ApplicationConfig): ServerBoundary;
+  createDatabase(path: string): DatabaseBoundary;
+  createServer(
+    config: ApplicationConfig,
+    database: DatabaseBoundary,
+  ): ServerBoundary;
   createTransport(): TransportBoundary;
   reportError(message: string): void;
 }
@@ -56,8 +80,35 @@ export class FinanceMcpRuntime {
 function defaultDependencies(): McpRuntimeDependencies {
   return {
     createDatabase: (path) => initializeDatabase(path, migrationsFolder),
-    createServer: () =>
-      new McpServer({ name: "family-finance", version: mcpVersion }),
+    createServer: (_config, initialized) => {
+      if (!initialized.database)
+        throw new Error("Finance database was not initialized");
+      const families = new SQLiteFamilyProfileRepository(initialized.database);
+      const members = new SQLiteFamilyMemberRepository(initialized.database);
+      const incomes = new SQLiteIncomePlanRepository(initialized.database);
+      const categories = new SQLiteExpenseCategoryRepository(
+        initialized.database,
+      );
+      const expenses = new SQLiteExpensePlanRepository(initialized.database);
+      const incomeService = new IncomePlanService(families, members, incomes);
+      const server = new McpServer({
+        name: "family-finance",
+        version: mcpVersion,
+      });
+      registerPlanningTools(server as unknown as ToolRegistrar, {
+        bills: new BillQueryService(
+          new SQLiteBillPlanRepository(initialized.database),
+        ),
+        expenses: new ExpensePlanService(families, categories, expenses),
+        families: new FamilyProfileService(families),
+        incomes: incomeService,
+        members: new FamilyMemberService(families, members, {
+          hasReferences: (familyId, memberId) =>
+            incomeService.hasMemberReferences(familyId, memberId),
+        }),
+      });
+      return server as unknown as ServerBoundary;
+    },
     createTransport: () => new StdioServerTransport(),
     reportError: (message) => process.stderr.write(`${message}\n`),
   };
@@ -70,7 +121,7 @@ export async function startMcpServer(
   const config = loadApplicationConfig(environment);
   const database = dependencies.createDatabase(config.database.path);
   const runtime = new FinanceMcpRuntime(
-    dependencies.createServer(config),
+    dependencies.createServer(config, database),
     dependencies.createTransport(),
     database,
     dependencies.reportError,
