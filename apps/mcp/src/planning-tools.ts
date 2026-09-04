@@ -1,5 +1,4 @@
 import {
-  RepositoryNotFoundError,
   type BillQueryService,
   type ExpensePlanService,
   type FamilyMemberService,
@@ -7,6 +6,12 @@ import {
   type IncomePlanService,
 } from "@family-finance/application";
 import { z } from "zod";
+import {
+  registerTool as register,
+  type ToolRegistrar,
+} from "./tool-boundary.js";
+
+export type { ToolRegistrar } from "./tool-boundary.js";
 
 export interface PlanningToolServices {
   readonly bills: BillQueryService;
@@ -14,53 +19,6 @@ export interface PlanningToolServices {
   readonly families: FamilyProfileService;
   readonly incomes: IncomePlanService;
   readonly members: FamilyMemberService;
-}
-type ToolResult = {
-  readonly content: readonly [{ readonly text: string; readonly type: "text" }];
-  readonly isError?: boolean;
-};
-export interface ToolRegistrar {
-  registerTool(
-    name: string,
-    definition: {
-      readonly description: string;
-      readonly inputSchema: z.ZodType;
-      readonly title: string;
-    },
-    handler: (input: unknown) => Promise<ToolResult>,
-  ): void;
-}
-
-function text(value: unknown): ToolResult {
-  return {
-    content: [
-      {
-        text: JSON.stringify(value, (_key, item) =>
-          typeof item === "bigint" ? item.toString() : item,
-        ),
-        type: "text",
-      },
-    ],
-  };
-}
-async function safely<T>(operation: () => Promise<T>): Promise<ToolResult> {
-  try {
-    return text(await operation());
-  } catch (error) {
-    const code =
-      error instanceof z.ZodError
-        ? "INVALID_ARGUMENT"
-        : error instanceof RepositoryNotFoundError
-          ? "NOT_FOUND"
-          : "INTERNAL_ERROR";
-    const message =
-      code === "INTERNAL_ERROR"
-        ? "The planning operation failed"
-        : error instanceof Error
-          ? error.message
-          : "Invalid request";
-    return { ...text({ error: { code, message } }), isError: true };
-  }
 }
 
 const familyId = z.string().trim().min(1).max(128);
@@ -100,14 +58,13 @@ export function registerPlanningTools(
     },
   ] as const;
   for (const definition of definitions)
-    server.registerTool(
+    register(
+      server,
       definition.name,
-      {
-        description: definition.description,
-        inputSchema: definition.schema,
-        title: definition.title,
-      },
-      (input) => safely(() => definition.run(definition.schema.parse(input))),
+      definition.title,
+      definition.description,
+      definition.schema,
+      definition.run,
     );
 
   register(
@@ -187,20 +144,5 @@ export function registerPlanningTools(
     "Read a configured bill and its reminder settings.",
     z.object({ familyId, id: entityId }).strict(),
     (input) => services.bills.get(input.familyId, input.id),
-  );
-}
-
-function register<T extends z.ZodType>(
-  server: ToolRegistrar,
-  name: string,
-  title: string,
-  description: string,
-  schema: T,
-  run: (input: z.infer<T>) => Promise<unknown>,
-): void {
-  server.registerTool(
-    name,
-    { description, inputSchema: schema, title },
-    (input) => safely(() => run(schema.parse(input))),
   );
 }

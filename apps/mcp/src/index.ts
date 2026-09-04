@@ -4,10 +4,16 @@ import { fileURLToPath } from "node:url";
 
 import {
   BillQueryService,
+  BudgetForecastService,
+  BudgetSummaryService,
   ExpensePlanService,
+  ExpenseProjectionService,
   FamilyMemberService,
   FamilyProfileService,
   IncomePlanService,
+  IncomeProjectionService,
+  PeriodComparisonService,
+  buildAnalyticalBreakdowns,
 } from "@family-finance/application";
 import {
   loadApplicationConfig,
@@ -26,6 +32,7 @@ import {
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { registerPlanningTools, type ToolRegistrar } from "./planning-tools.js";
+import { registerAnalyticsTools } from "./analytics-tools.js";
 
 export const mcpPackageName = "@family-finance/mcp";
 export const mcpVersion = "0.0.0";
@@ -91,6 +98,15 @@ function defaultDependencies(): McpRuntimeDependencies {
       );
       const expenses = new SQLiteExpensePlanRepository(initialized.database);
       const incomeService = new IncomePlanService(families, members, incomes);
+      const incomeProjections = new IncomeProjectionService(families, incomes);
+      const expenseProjections = new ExpenseProjectionService(
+        families,
+        expenses,
+      );
+      const summaries = new BudgetSummaryService(
+        incomeProjections,
+        expenseProjections,
+      );
       const server = new McpServer({
         name: "family-finance",
         version: mcpVersion,
@@ -106,6 +122,31 @@ function defaultDependencies(): McpRuntimeDependencies {
           hasReferences: (familyId, memberId) =>
             incomeService.hasMemberReferences(familyId, memberId),
         }),
+      });
+      registerAnalyticsTools(server as unknown as ToolRegistrar, {
+        analytics: {
+          analyze: async (familyId, period) => {
+            const [income, expense, categoryList, memberList] =
+              await Promise.all([
+                incomeProjections.project(familyId, period),
+                expenseProjections.project(familyId, period),
+                categories.list(familyId),
+                members.listByFamilyId(familyId),
+              ]);
+            return buildAnalyticalBreakdowns(
+              income,
+              expense,
+              categoryList,
+              memberList,
+            );
+          },
+        },
+        comparisons: new PeriodComparisonService(summaries),
+        forecasts: new BudgetForecastService(
+          incomeProjections,
+          expenseProjections,
+        ),
+        summaries,
       });
       return server as unknown as ServerBoundary;
     },
