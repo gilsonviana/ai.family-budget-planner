@@ -1,0 +1,67 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify-and-publish:
+    name: Verify and publish
+    runs-on: ubuntu-latest
+    environment: npm
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.3
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          package-manager-cache: false
+          registry-url: https://registry.npmjs.org
+
+      - name: Install from lockfile
+        run: pnpm install --frozen-lockfile
+
+      - name: Run all verification
+        run: |
+          pnpm format:check
+          pnpm lint
+          pnpm typecheck
+          pnpm test
+          pnpm build
+
+      - name: Smoke-test packed artifacts
+        run: |
+          pnpm --filter @family-finance/cli smoke:pack
+          pnpm --filter @family-finance/mcp smoke:pack
+
+      - name: Validate tag, versions, changelog, and package dry runs
+        run: pnpm release:check
+
+      - name: Publish CLI with npm provenance
+        working-directory: apps/cli
+        run: npm publish --access public --provenance
+
+      - name: Publish MCP server with npm provenance
+        working-directory: apps/mcp
+        run: npm publish --access public --provenance

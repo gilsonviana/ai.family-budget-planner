@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": false,
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gilsonviana/ai.family-budget-planner.git",
+    "directory": "apps/mcp"
+  },
   "main": "./dist/finance-mcp.js",
   "bin": {
     "finance-mcp": "./dist/finance-mcp.js"

@@ -80,7 +80,7 @@ credentials; operators inject them into the server environment.
 See the [operator guide](docs/operator-guide.md) for environment variables,
 provider secrets, database backup and migration, and troubleshooting. See
 [reminder scheduling](docs/reminder-scheduling.md) for cron and hosted scheduler
-examples.
+examples. Maintainers should follow the [release guide](docs/releasing.md).
 
 ## Development
 

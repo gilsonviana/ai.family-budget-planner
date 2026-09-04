@@ -16,6 +16,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . && pnpm architecture",
+    "release:check": "node scripts/check-release.mjs",
+    "release:version": "node scripts/version-release.mjs",
     "test": "vitest run",
     "typecheck": "pnpm build && pnpm --recursive --if-present run typecheck"
   },
