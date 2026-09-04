@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import {
@@ -63,9 +64,7 @@ export interface McpRuntimeDependencies {
   reportError(message: string): void;
 }
 
-const migrationsFolder = fileURLToPath(
-  new URL("../../../packages/infrastructure/drizzle/", import.meta.url),
-);
+const migrationsFolder = fileURLToPath(new URL("./drizzle/", import.meta.url));
 
 export class FinanceMcpRuntime {
   private closed = false;
@@ -227,7 +226,7 @@ async function main(): Promise<void> {
 
 if (
   process.argv[1] !== undefined &&
-  import.meta.url === new URL(process.argv[1], "file:").href
+  realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
   void main();
 }

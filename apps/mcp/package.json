@@ -1,36 +1,36 @@
 {
   "name": "@family-finance/mcp",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
+  "private": false,
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/finance-mcp.js",
   "bin": {
-    "finance-mcp": "./dist/index.js"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
+    "finance-mcp": "./dist/finance-mcp.js"
   },
   "files": [
-    "dist"
+    "dist/finance-mcp.js",
+    "dist/drizzle"
   ],
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node scripts/copy-migrations.mjs && esbuild dist/index.js --bundle --platform=node --format=esm --outfile=dist/finance-mcp.js --external:better-sqlite3",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "prepack": "pnpm build",
+    "smoke:pack": "node scripts/smoke-pack.mjs",
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "better-sqlite3": "^12.8.0"
+  },
+  "devDependencies": {
     "@family-finance/application": "workspace:*",
     "@family-finance/config": "workspace:*",
     "@family-finance/infrastructure": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.30.0",
+    "@types/node": "^26.4.1",
     "zod": "^4.5.4"
-  },
-  "devDependencies": {
-    "@types/node": "^26.4.1"
   }
 }
