@@ -1,12 +1,19 @@
 #!/usr/bin/env node
 
-import { RepositoryNotFoundError } from "@family-finance/application";
+import { realpathSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import {
+  FamilyProfileService,
+  InMemoryFamilyProfileRepository,
+  RepositoryNotFoundError,
+} from "@family-finance/application";
 import {
   ConfigurationError,
   loadApplicationConfig,
   type ApplicationConfig,
 } from "@family-finance/config";
 import { jsonError, type CliErrorCode } from "./json-output.js";
+import { createCoreCommandDispatcher } from "./core-commands.js";
 
 export const cliPackageName = "@family-finance/cli";
 export const cliVersion = "0.0.0";
@@ -116,17 +123,33 @@ export async function runCli(
 }
 
 async function main(): Promise<void> {
-  const code = await runCli(process.argv.slice(2), {
+  const io: CliIO = {
     environment: process.env,
     error: (message) => process.stderr.write(`${message}\n`),
     log: (message) => process.stdout.write(`${message}\n`),
-  });
+  };
+  const families = new FamilyProfileService(
+    new InMemoryFamilyProfileRepository(),
+  );
+  const dispatch = createCoreCommandDispatcher(
+    {
+      execute: async (operation, input) => {
+        if (operation !== "family:create")
+          throw new CliValidationError(
+            `Command is not available in this build: ${operation}`,
+          );
+        return families.create(input as never);
+      },
+    },
+    io,
+  );
+  const code = await runCli(process.argv.slice(2), io, dispatch);
   process.exitCode = code;
 }
 
 if (
   process.argv[1] !== undefined &&
-  import.meta.url === new URL(process.argv[1], "file:").href
+  realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
   void main();
 }

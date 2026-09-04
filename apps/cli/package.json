@@ -1,33 +1,27 @@
 {
   "name": "@family-finance/cli",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
+  "private": false,
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/finance.js",
   "bin": {
-    "finance": "./dist/index.js"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
+    "finance": "./dist/finance.js"
   },
   "files": [
-    "dist"
+    "dist/finance.js"
   ],
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && esbuild dist/index.js --bundle --platform=node --format=esm --outfile=dist/finance.js",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "prepack": "pnpm build",
+    "smoke:pack": "node scripts/smoke-pack.mjs",
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
-  "dependencies": {
-    "@family-finance/application": "workspace:*",
-    "@family-finance/config": "workspace:*",
-    "@family-finance/infrastructure": "workspace:*"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^26.4.1"
   }
