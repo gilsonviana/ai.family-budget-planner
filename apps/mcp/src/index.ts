@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 
 import {
   BillQueryService,
+  AiPeriodSummaryService,
+  BudgetInsightService,
   BudgetForecastService,
   BudgetSummaryService,
   ExpensePlanService,
@@ -27,12 +29,15 @@ import {
   SQLiteFamilyMemberRepository,
   SQLiteFamilyProfileRepository,
   SQLiteIncomePlanRepository,
+  OpenAILlmProvider,
+  budgetInsightValidator,
   type FinanceDatabase,
 } from "@family-finance/infrastructure";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { registerPlanningTools, type ToolRegistrar } from "./planning-tools.js";
 import { registerAnalyticsTools } from "./analytics-tools.js";
+import { registerInsightTools } from "./insight-tools.js";
 
 export const mcpPackageName = "@family-finance/mcp";
 export const mcpVersion = "0.0.0";
@@ -148,6 +153,35 @@ function defaultDependencies(): McpRuntimeDependencies {
         ),
         summaries,
       });
+      registerInsightTools(
+        server as unknown as ToolRegistrar,
+        _config.llm
+          ? new AiPeriodSummaryService(
+              summaries,
+              {
+                analyze: async (familyId, period) => {
+                  const [income, expense, categoryList, memberList] =
+                    await Promise.all([
+                      incomeProjections.project(familyId, period),
+                      expenseProjections.project(familyId, period),
+                      categories.list(familyId),
+                      members.listByFamilyId(familyId),
+                    ]);
+                  return buildAnalyticalBreakdowns(
+                    income,
+                    expense,
+                    categoryList,
+                    memberList,
+                  );
+                },
+              },
+              new BudgetInsightService(
+                new OpenAILlmProvider(_config),
+                budgetInsightValidator,
+              ),
+            )
+          : undefined,
+      );
       return server as unknown as ServerBoundary;
     },
     createTransport: () => new StdioServerTransport(),

@@ -12,11 +12,9 @@ function setup() {
   };
   const services = {
     analytics: {
-      analyze: vi
-        .fn()
-        .mockResolvedValue({
-          incomeTotal: { currency: "BRL", minorUnits: 100n },
-        }),
+      analyze: vi.fn().mockResolvedValue({
+        incomeTotal: { currency: "BRL", minorUnits: 100n },
+      }),
     },
     comparisons: {
       compare: vi
@@ -29,12 +27,10 @@ function setup() {
         .mockResolvedValue({ currency: "BRL", granularity: "monthly" }),
     },
     summaries: {
-      summarize: vi
-        .fn()
-        .mockResolvedValue({
-          currency: "BRL",
-          projectedBalance: { minorUnits: 100n },
-        }),
+      summarize: vi.fn().mockResolvedValue({
+        currency: "BRL",
+        projectedBalance: { minorUnits: 100n },
+      }),
     },
   };
   registerAnalyticsTools(registrar, services as never);

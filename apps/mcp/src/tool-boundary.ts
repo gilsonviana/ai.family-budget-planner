@@ -17,6 +17,13 @@ export interface ToolRegistrar {
   ): void;
 }
 
+export class ToolUnavailableError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ToolUnavailableError";
+  }
+}
+
 function text(value: unknown): ToolResult {
   return {
     content: [
@@ -41,7 +48,9 @@ export async function safely<T>(
         ? "INVALID_ARGUMENT"
         : error instanceof RepositoryNotFoundError
           ? "NOT_FOUND"
-          : "INTERNAL_ERROR";
+          : error instanceof ToolUnavailableError
+            ? "PROVIDER_UNAVAILABLE"
+            : "INTERNAL_ERROR";
     const message =
       code === "INTERNAL_ERROR"
         ? "The finance operation failed"
