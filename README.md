@@ -31,6 +31,10 @@ Set the database location before running commands:
 export FINANCE_DATABASE_PATH="$PWD/data/finance.sqlite"
 ```
 
+Alternatively, copy `.env.example` to `.env` and fill in the values. The CLI
+loads `.env` from its current working directory; shell environment variables
+remain the preferred way to override those settings.
+
 The parent directory must exist and be writable. If the variable is omitted, the
 application uses `./finance.db` relative to its working directory.
 
@@ -64,13 +68,30 @@ inclusive. Recurrences support `oneTime`, `weekly`, `monthly`, `quarterly`, and
   `expense:create`, `expense:get`, `expense:list`, `expense:update`,
   `expense:deactivate`
 - Analytics and operations: `budget:summary`, `analytics:breakdown`,
-  `budget:compare`, `budget:forecast`, `bill:list`, `reminder:process`
+  `budget:compare`, `budget:forecast`, `bill:list`, `reminder:process`,
+  `insight`
 
 Use `--json` for stable machine-readable output. Validation errors exit with 2,
 missing records with 3, unexpected system failures with 1, and success with 0.
 Conflicting caller-chosen IDs return `CONFLICT` and exit with 4. Analytical
 commands require `--family-id`; comparison also requires `--baseline-from` and
 `--baseline-to`, and forecast requires `--granularity`.
+
+Use `--pretty` to print the same versioned response envelope with indentation
+for terminal reading. It cannot be combined with `--json`.
+
+`insight --pretty` prints a readable calculated summary without contacting an
+LLM. To request an LLM explanation, set `FINANCE_LLM_PROVIDER=openai`,
+`FINANCE_LLM_MODEL`, and `FINANCE_LLM_API_KEY`, then run
+`pnpm finance insight --family-id viana-family --from 2026-09-01 --to 2026-09-30 --llm`.
+The `--llm` form prints only the generated text and cannot be combined with
+`--json`; `--LLM` is supported as a compatible alias.
+
+The LLM command sends the calculated summary and analytical breakdowns for the
+selected family and period to the configured provider, and may incur provider
+usage charges. It requires outbound HTTPS and DNS access to the provider. If it
+reports `OpenAI generation failed`, verify the API key and model in `.env`, then
+verify that the process can resolve and reach `api.openai.com`.
 
 ## MCP server
 

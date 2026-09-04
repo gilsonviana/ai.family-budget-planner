@@ -1,4 +1,7 @@
-import { RepositoryNotFoundError } from "@family-finance/application";
+import {
+  LlmProviderError,
+  RepositoryNotFoundError,
+} from "@family-finance/application";
 import { describe, expect, it } from "vitest";
 
 import { ExitCode, runCli } from "./index.js";
@@ -53,9 +56,34 @@ describe("finance CLI shell", () => {
     expect(system.errors).toEqual(["Unexpected system error"]);
   });
 
+  it("reports safe LLM provider failures without exposing their cause", async () => {
+    const streams = io();
+    expect(
+      await runCli(["insight", "--llm"], streams.value, async () => {
+        throw new LlmProviderError(
+          "authentication",
+          false,
+          "OpenAI rejected its credentials",
+          { cause: new Error("secret API response") },
+        );
+      }),
+    ).toBe(ExitCode.system);
+    expect(streams.errors).toEqual(["OpenAI rejected its credentials"]);
+  });
+
   it("loads and validates configuration before dispatch", async () => {
     const streams = io({ FINANCE_LOG_LEVEL: "verbose" });
     expect(await runCli(["show"], streams.value)).toBe(ExitCode.validation);
     expect(streams.errors[0]).toContain("FINANCE_LOG_LEVEL");
+  });
+
+  it("rejects conflicting output modes", async () => {
+    const streams = io();
+    expect(
+      await runCli(["family:get", "--json", "--pretty"], streams.value),
+    ).toBe(ExitCode.validation);
+    expect(streams.errors).toEqual([
+      '{"error":{"code":"VALIDATION_ERROR","message":"--json and --pretty cannot be used together"},"version":1}',
+    ]);
   });
 });

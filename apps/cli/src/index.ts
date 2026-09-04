@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
-import { realpathSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  LlmProviderError,
   RepositoryConflictError,
   RepositoryNotFoundError,
 } from "@family-finance/application";
@@ -55,6 +57,16 @@ export type CliDispatcher = (
   context: CliContext,
 ) => Promise<void>;
 
+/** Loads a conventional local .env file without replacing values supplied by the shell. */
+export function loadCliEnvironment(
+  path = resolve(process.cwd(), ".env"),
+): void {
+  if (!existsSync(path)) return;
+  const shellEnvironment = new Map(Object.entries(process.env));
+  process.loadEnvFile(path);
+  for (const [key, value] of shellEnvironment) process.env[key] = value;
+}
+
 const help = `Family Finance Planner
 
 Usage: finance [options] <command>
@@ -62,6 +74,8 @@ Usage: finance [options] <command>
 Options:
   -h, --help     Show help
   -v, --version  Show version
+      --json     Emit a compact, versioned JSON envelope for scripts
+      --pretty    Emit an indented, versioned JSON envelope for people
 
 Run "finance <command> --help" for command-specific help.`;
 
@@ -91,6 +105,13 @@ function errorMessage(error: unknown): {
     return {
       code: ExitCode.conflict,
       errorCode: "CONFLICT",
+      message: error.message,
+    };
+  }
+  if (error instanceof LlmProviderError) {
+    return {
+      code: ExitCode.system,
+      errorCode: "SYSTEM_ERROR",
       message: error.message,
     };
   }
@@ -125,6 +146,13 @@ export async function runCli(
       io.log(cliVersion);
       return ExitCode.success;
     }
+    if (
+      commandArguments.includes("--json") &&
+      commandArguments.includes("--pretty")
+    )
+      throw new CliValidationError(
+        "--json and --pretty cannot be used together",
+      );
     await dispatch(command, commandArguments, { config });
     return ExitCode.success;
   } catch (error) {
@@ -139,6 +167,7 @@ export async function runCli(
 }
 
 async function main(): Promise<void> {
+  loadCliEnvironment();
   const io: CliIO = {
     environment: process.env,
     error: (message) => process.stderr.write(`${message}\n`),

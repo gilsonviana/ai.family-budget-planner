@@ -21,6 +21,14 @@ function canonical(value: unknown): unknown {
 export function jsonSuccess(data: unknown): string {
   return JSON.stringify(canonical({ data, version: jsonOutputVersion }));
 }
+/** Versioned JSON envelope formatted for direct reading in a terminal. */
+export function prettySuccess(data: unknown): string {
+  return JSON.stringify(
+    canonical({ data, version: jsonOutputVersion }),
+    null,
+    2,
+  );
+}
 export function jsonError(code: CliErrorCode, message: string): string {
   return JSON.stringify(
     canonical({ error: { code, message }, version: jsonOutputVersion }),

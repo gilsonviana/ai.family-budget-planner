@@ -12,6 +12,7 @@ selected by `FINANCE_DATABASE_PATH`. Core commands take one JSON object through
 | `expense:category-create` | `familyId`, `id`, `name`                           | Creates an active family-scoped category.                                                |
 | `expense:create`          | IDs, name, `{value,currency}` amount, recurrence   | Creates an active expense plan in the selected category.                                 |
 | `budget:summary`          | `--family-id`, `--from`, `--to`                    | Returns exact expected income, expenses, and projected balance for the inclusive period. |
+| `insight`                 | `--family-id`, `--from`, `--to`                    | Uses configured LLM credentials to explain calculated summary and analytical facts.      |
 
 Every successful `--json` response has the shape
 `{"data": <operation result>, "version": 1}` and exits with 0. Reusing an ID for

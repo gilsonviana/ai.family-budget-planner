@@ -38,4 +38,21 @@ describe("core planning commands", () => {
     );
     expect(errors).toEqual(["--data must contain a valid JSON object"]);
   });
+
+  it("renders an indented versioned envelope with --pretty", async () => {
+    const output: string[] = [];
+    const io = {
+      environment: {},
+      error: vi.fn(),
+      log: (value: string) => output.push(value),
+    };
+    const dispatch = createCoreCommandDispatcher(
+      { execute: vi.fn().mockResolvedValue({ created: true }) },
+      io,
+    );
+    await runCli(["family:create", "--data", "{}", "--pretty"], io, dispatch);
+    expect(output).toEqual([
+      '{\n  "data": {\n    "created": true\n  },\n  "version": 1\n}',
+    ]);
+  });
 });

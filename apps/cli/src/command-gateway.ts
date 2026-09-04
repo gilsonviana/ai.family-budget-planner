@@ -1,5 +1,7 @@
 import {
+  AiPeriodSummaryService,
   BillQueryService,
+  BudgetInsightService,
   BudgetForecastService,
   BudgetSummaryService,
   DueReminderSelectionService,
@@ -22,6 +24,7 @@ import {
 import type { ApplicationConfig } from "@family-finance/config";
 import {
   ResendEmailProvider,
+  OpenAILlmProvider,
   SQLiteBillPlanRepository,
   SQLiteExpenseCategoryRepository,
   SQLiteExpensePlanRepository,
@@ -30,6 +33,7 @@ import {
   SQLiteIncomePlanRepository,
   SQLiteReminderDeliveryRepository,
   type FinanceDatabase,
+  budgetInsightValidator,
 } from "@family-finance/infrastructure";
 
 import { CliValidationError } from "./index.js";
@@ -37,6 +41,7 @@ import type {
   AdvancedCommandGateway,
   AdvancedOperation,
 } from "./advanced-commands.js";
+import { advancedOperations, hasLlmFlag } from "./advanced-commands.js";
 import type { CorePlanningOperation } from "./core-commands.js";
 
 type Input = Readonly<Record<string, unknown>>;
@@ -152,6 +157,16 @@ export function createFinanceCommandGateway(
   );
   const bills = new BillQueryService(billRepository);
 
+  const analyze = async (familyId: string, period: DateRange) => {
+    const [income, expense, categories, members] = await Promise.all([
+      incomeProjections.project(familyId, period),
+      expenseProjections.project(familyId, period),
+      categoryRepository.list(familyId),
+      memberRepository.listByFamilyId(familyId),
+    ]);
+    return buildAnalyticalBreakdowns(income, expense, categories, members);
+  };
+
   async function executeCore(
     operation: CorePlanningOperation,
     input: Input,
@@ -220,19 +235,33 @@ export function createFinanceCommandGateway(
     switch (operation) {
       case "budget:summary":
         return summaries.summarize(familyId, input.period);
+      case "insight": {
+        if (!hasLlmFlag(input.raw))
+          return summaries.summarize(familyId, input.period);
+        if (!config.llm)
+          throw new CliValidationError(
+            "insight --llm requires FINANCE_LLM_PROVIDER, FINANCE_LLM_MODEL, and FINANCE_LLM_API_KEY",
+          );
+        const generated = await new AiPeriodSummaryService(
+          summaries,
+          { analyze },
+          new BudgetInsightService(
+            new OpenAILlmProvider(config),
+            budgetInsightValidator,
+          ),
+        ).summarize(familyId, input.period);
+        return [
+          generated.generated.insight.summary,
+          ...generated.generated.insight.observations.map(
+            (observation) => `Observation: ${observation}`,
+          ),
+          ...generated.generated.insight.actions.map(
+            (action) => `Action: ${action}`,
+          ),
+        ].join("\n");
+      }
       case "analytics:breakdown": {
-        const [income, expense, categories, memberList] = await Promise.all([
-          incomeProjections.project(familyId, input.period),
-          expenseProjections.project(familyId, input.period),
-          categoryRepository.list(familyId),
-          memberRepository.listByFamilyId(familyId),
-        ]);
-        return buildAnalyticalBreakdowns(
-          income,
-          expense,
-          categories,
-          memberList,
-        );
+        return analyze(familyId, input.period);
       }
       case "budget:compare": {
         const baseline = DateRange.inclusive(
@@ -289,17 +318,7 @@ export function createFinanceCommandGateway(
     operation: CorePlanningOperation | AdvancedOperation,
     input: Input | Parameters<AdvancedCommandGateway["execute"]>[1],
   ) =>
-    operation.includes(":") &&
-    (
-      [
-        "budget:summary",
-        "analytics:breakdown",
-        "budget:compare",
-        "budget:forecast",
-        "bill:list",
-        "reminder:process",
-      ] as string[]
-    ).includes(operation)
+    advancedOperations.includes(operation as AdvancedOperation)
       ? executeAdvanced(
           operation as AdvancedOperation,
           input as Parameters<AdvancedCommandGateway["execute"]>[1],

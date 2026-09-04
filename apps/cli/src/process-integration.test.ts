@@ -1,5 +1,5 @@
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -157,5 +157,47 @@ describe.sequential("packaged CLI process contract", () => {
       code: "CONFLICT",
       message: "family already exists: viana-family",
     });
+  });
+
+  it("loads CLI configuration from a local .env file", () => {
+    const workingDirectory = mkdtempSync(join(tmpdir(), "finance-cli-env-"));
+    const envDatabasePath = join(workingDirectory, "from-env.sqlite");
+    writeFileSync(
+      join(workingDirectory, ".env"),
+      `FINANCE_DATABASE_PATH=${envDatabasePath}\n`,
+    );
+    try {
+      const result = spawnSync(process.execPath, [executable, "--version"], {
+        cwd: workingDirectory,
+        encoding: "utf8",
+        env: { ...process.env },
+      });
+      expect(result.status).toBe(0);
+      expect(result.stdout).toBe("0.0.0\n");
+      expect(existsSync(envDatabasePath)).toBe(true);
+    } finally {
+      rmSync(workingDirectory, { recursive: true, force: true });
+    }
+  });
+
+  it("keeps explicitly supplied environment values over .env values", () => {
+    const workingDirectory = mkdtempSync(join(tmpdir(), "finance-cli-env-"));
+    const shellDatabasePath = join(workingDirectory, "from-shell.sqlite");
+    writeFileSync(
+      join(workingDirectory, ".env"),
+      `FINANCE_DATABASE_PATH=${join(workingDirectory, "from-env.sqlite")}\n`,
+    );
+    try {
+      const result = spawnSync(process.execPath, [executable, "--version"], {
+        cwd: workingDirectory,
+        encoding: "utf8",
+        env: { ...process.env, FINANCE_DATABASE_PATH: shellDatabasePath },
+      });
+      expect(result.status).toBe(0);
+      expect(existsSync(shellDatabasePath)).toBe(true);
+      expect(existsSync(join(workingDirectory, "from-env.sqlite"))).toBe(false);
+    } finally {
+      rmSync(workingDirectory, { recursive: true, force: true });
+    }
   });
 });

@@ -1,5 +1,5 @@
 import { CliValidationError, type CliContext, type CliIO } from "./index.js";
-import { jsonSuccess } from "./json-output.js";
+import { jsonSuccess, prettySuccess } from "./json-output.js";
 
 export const corePlanningOperations = [
   "family:create",
@@ -73,7 +73,9 @@ export function createCoreCommandDispatcher(
       io.log(
         arguments_.includes("--json")
           ? jsonSuccess(result)
-          : JSON.stringify(result, null, 2),
+          : arguments_.includes("--pretty")
+            ? prettySuccess(result)
+            : JSON.stringify(result, null, 2),
       );
     }
   };

@@ -2,12 +2,18 @@ import { describe, expect, it, vi } from "vitest";
 
 import { createCoreCommandDispatcher } from "./core-commands.js";
 import { runCli } from "./index.js";
-import { jsonSuccess } from "./json-output.js";
+import { jsonSuccess, prettySuccess } from "./json-output.js";
 
 describe("stable JSON output", () => {
   it("canonicalizes keys inside a versioned success envelope", () => {
     expect(jsonSuccess({ z: 1, a: { y: 2, b: 3 } })).toBe(
       '{"data":{"a":{"b":3,"y":2},"z":1},"version":1}',
+    );
+  });
+
+  it("formats the same canonical envelope for terminal reading", () => {
+    expect(prettySuccess({ zebra: 1, alpha: 2 })).toBe(
+      '{\n  "data": {\n    "alpha": 2,\n    "zebra": 1\n  },\n  "version": 1\n}',
     );
   });
 
