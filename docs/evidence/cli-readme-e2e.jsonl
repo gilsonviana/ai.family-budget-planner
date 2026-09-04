@@ -1,0 +1,6 @@
+{"data":{"id":"viana-family","name":"Viana Family","settings":{"currency":"BRL","locale":"pt-BR","timeZone":"America/Sao_Paulo","weekStartsOn":1}},"version":1}
+{"data":{"familyId":"viana-family","id":"gilson","name":"Gilson"},"version":1}
+{"data":{"active":true,"amount":{"amount":"8000.00","currency":"BRL","fractionDigits":2},"familyId":"viana-family","id":"salary","memberId":"gilson","recurrence":{"frequency":"monthly","monthOverflow":"constrain","startDate":"2026-01-05"},"source":"Salary"},"version":1}
+{"data":{"active":true,"familyId":"viana-family","id":"housing","name":"Housing"},"version":1}
+{"data":{"active":true,"amount":{"amount":"2500.00","currency":"BRL","fractionDigits":2},"categoryId":"housing","familyId":"viana-family","id":"rent","name":"Rent","recurrence":{"frequency":"monthly","monthOverflow":"constrain","startDate":"2026-01-10"}},"version":1}
+{"data":{"currency":"BRL","expectedExpenses":{"amount":"2500.00","currency":"BRL","fractionDigits":2},"expectedIncome":{"amount":"8000.00","currency":"BRL","fractionDigits":2},"period":{"endExclusive":"2026-10-01","start":"2026-09-01"},"projectedBalance":{"amount":"5500.00","currency":"BRL","fractionDigits":2}},"version":1}

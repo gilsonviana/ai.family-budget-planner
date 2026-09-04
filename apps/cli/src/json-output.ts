@@ -1,5 +1,6 @@
 export const jsonOutputVersion = 1;
-export type CliErrorCode = "NOT_FOUND" | "SYSTEM_ERROR" | "VALIDATION_ERROR";
+export type CliErrorCode =
+  "CONFLICT" | "NOT_FOUND" | "SYSTEM_ERROR" | "VALIDATION_ERROR";
 
 function canonical(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonical);

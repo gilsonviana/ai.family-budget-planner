@@ -13,21 +13,27 @@
     "finance": "./dist/finance.js"
   },
   "files": [
-    "dist/finance.js"
+    "dist/finance.js",
+    "dist/drizzle"
   ],
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && esbuild dist/index.js --bundle --platform=node --format=esm --outfile=dist/finance.js",
+    "build": "tsc -p tsconfig.json && node scripts/copy-migrations.mjs && esbuild dist/index.js --bundle --platform=node --format=esm --outfile=dist/finance.js --external:better-sqlite3",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "prepack": "pnpm build",
     "smoke:pack": "node scripts/smoke-pack.mjs",
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
-  "dependencies": {},
+  "dependencies": {
+    "better-sqlite3": "^13.0.3"
+  },
   "devDependencies": {
+    "@family-finance/application": "workspace:*",
+    "@family-finance/config": "workspace:*",
+    "@family-finance/infrastructure": "workspace:*",
     "@types/node": "^26.4.1"
   }
 }

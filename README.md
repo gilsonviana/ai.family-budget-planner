@@ -38,7 +38,8 @@ application uses `./finance.db` relative to its working directory.
 
 Core write commands accept one JSON object through `--data`. IDs are stable,
 caller-chosen identifiers; amounts are decimal strings so floating-point
-rounding never changes stored money.
+rounding never changes stored money. The exact response and persistence contract
+is documented in [the CLI release contract](docs/cli-contract.md).
 
 ```sh
 pnpm finance family:create --json --data '{"id":"viana-family","name":"Viana Family","settings":{"currency":"BRL","locale":"pt-BR","timeZone":"America/Sao_Paulo","weekStartsOn":1}}'
@@ -46,7 +47,7 @@ pnpm finance member:add --json --data '{"familyId":"viana-family","id":"gilson",
 pnpm finance income:create --json --data '{"id":"salary","familyId":"viana-family","memberId":"gilson","source":"Salary","amount":{"value":"8000.00","currency":"BRL"},"recurrence":{"frequency":"monthly","startDate":"2026-01-05"}}'
 pnpm finance expense:category-create --json --data '{"id":"housing","familyId":"viana-family","name":"Housing"}'
 pnpm finance expense:create --json --data '{"id":"rent","familyId":"viana-family","categoryId":"housing","name":"Rent","amount":{"value":"2500.00","currency":"BRL"},"recurrence":{"frequency":"monthly","startDate":"2026-01-10"}}'
-pnpm finance budget:summary --from 2026-09-01 --to 2026-09-30 --json
+pnpm finance budget:summary --family-id viana-family --from 2026-09-01 --to 2026-09-30 --json
 ```
 
 Dates are local calendar dates in `YYYY-MM-DD` format. `--from` and `--to` are
@@ -67,6 +68,9 @@ inclusive. Recurrences support `oneTime`, `weekly`, `monthly`, `quarterly`, and
 
 Use `--json` for stable machine-readable output. Validation errors exit with 2,
 missing records with 3, unexpected system failures with 1, and success with 0.
+Conflicting caller-chosen IDs return `CONFLICT` and exit with 4. Analytical
+commands require `--family-id`; comparison also requires `--baseline-from` and
+`--baseline-to`, and forecast requires `--granularity`.
 
 ## MCP server
 

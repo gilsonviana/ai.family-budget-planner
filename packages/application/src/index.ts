@@ -125,4 +125,9 @@ export {
   ExpenseProjectionService,
   type ExpenseProjectionResult,
 } from "./use-cases/expense-projections.js";
-export { DateRange, LocalDate } from "@family-finance/domain";
+export {
+  DateRange,
+  LocalDate,
+  Money,
+  RecurrenceRule,
+} from "@family-finance/domain";

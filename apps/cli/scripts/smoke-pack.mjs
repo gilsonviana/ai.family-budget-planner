@@ -5,6 +5,10 @@ import { join } from "node:path";
 import process from "node:process";
 
 const temporary = mkdtempSync(join(tmpdir(), "finance-cli-smoke-"));
+const environment = {
+  ...process.env,
+  FINANCE_DATABASE_PATH: join(temporary, "finance.sqlite"),
+};
 try {
   const packed = JSON.parse(
     execFileSync("pnpm", ["pack", "--json", "--pack-destination", temporary], {
@@ -18,7 +22,10 @@ try {
     stdio: "ignore",
   });
   const binary = join(temporary, "node_modules", ".bin", "finance");
-  const help = execFileSync(binary, ["--help"], { encoding: "utf8" });
+  const help = execFileSync(binary, ["--help"], {
+    encoding: "utf8",
+    env: environment,
+  });
   if (!help.includes("Family Finance Planner"))
     throw new Error("finance --help failed");
   const created = execFileSync(
@@ -38,7 +45,7 @@ try {
         },
       }),
     ],
-    { encoding: "utf8" },
+    { encoding: "utf8", env: environment },
   );
   if (!created.includes("smoke-family"))
     throw new Error("family:create smoke workflow failed");

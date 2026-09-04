@@ -3,8 +3,7 @@
 import { realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
-  FamilyProfileService,
-  InMemoryFamilyProfileRepository,
+  RepositoryConflictError,
   RepositoryNotFoundError,
 } from "@family-finance/application";
 import {
@@ -13,7 +12,16 @@ import {
   type ApplicationConfig,
 } from "@family-finance/config";
 import { jsonError, type CliErrorCode } from "./json-output.js";
-import { createCoreCommandDispatcher } from "./core-commands.js";
+import { initializeDatabase } from "@family-finance/infrastructure";
+import {
+  createAdvancedCommandDispatcher,
+  advancedOperations,
+} from "./advanced-commands.js";
+import { createFinanceCommandGateway } from "./command-gateway.js";
+import {
+  createCoreCommandDispatcher,
+  corePlanningOperations,
+} from "./core-commands.js";
 
 export const cliPackageName = "@family-finance/cli";
 export const cliVersion = "0.0.0";
@@ -23,6 +31,7 @@ export const ExitCode = Object.freeze({
   system: 1,
   validation: 2,
   notFound: 3,
+  conflict: 4,
 } as const);
 
 export class CliValidationError extends Error {
@@ -78,6 +87,13 @@ function errorMessage(error: unknown): {
       message: error.message,
     };
   }
+  if (error instanceof RepositoryConflictError) {
+    return {
+      code: ExitCode.conflict,
+      errorCode: "CONFLICT",
+      message: error.message,
+    };
+  }
   return {
     code: ExitCode.system,
     errorCode: "SYSTEM_ERROR",
@@ -128,23 +144,32 @@ async function main(): Promise<void> {
     error: (message) => process.stderr.write(`${message}\n`),
     log: (message) => process.stdout.write(`${message}\n`),
   };
-  const families = new FamilyProfileService(
-    new InMemoryFamilyProfileRepository(),
-  );
-  const dispatch = createCoreCommandDispatcher(
-    {
-      execute: async (operation, input) => {
-        if (operation !== "family:create")
-          throw new CliValidationError(
-            `Command is not available in this build: ${operation}`,
-          );
-        return families.create(input as never);
-      },
-    },
-    io,
-  );
-  const code = await runCli(process.argv.slice(2), io, dispatch);
-  process.exitCode = code;
+  let database: ReturnType<typeof initializeDatabase> | undefined;
+  try {
+    const config = loadApplicationConfig(io.environment);
+    const migrationsFolder = fileURLToPath(
+      new URL("./drizzle/", import.meta.url),
+    );
+    database = initializeDatabase(config.database.path, migrationsFolder);
+    const gateway = createFinanceCommandGateway(database.database, config);
+    const core = createCoreCommandDispatcher(gateway, io);
+    const advanced = createAdvancedCommandDispatcher(gateway, io);
+    const dispatch: CliDispatcher = (command, args, context) =>
+      corePlanningOperations.includes(command as never)
+        ? core(command, args, context)
+        : advancedOperations.includes(command as never)
+          ? advanced(command, args, context)
+          : Promise.reject(
+              new CliValidationError(`Unknown command: ${command}`),
+            );
+    process.exitCode = await runCli(process.argv.slice(2), io, dispatch);
+  } catch (error) {
+    const mapped = errorMessage(error);
+    io.error(jsonError(mapped.errorCode, mapped.message));
+    process.exitCode = mapped.code;
+  } finally {
+    database?.close();
+  }
 }
 
 if (
@@ -156,4 +181,5 @@ if (
 
 export * from "./core-commands.js";
 export * from "./advanced-commands.js";
+export * from "./command-gateway.js";
 export * from "./json-output.js";
